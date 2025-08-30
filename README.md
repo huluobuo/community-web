@@ -101,7 +101,7 @@
 
 本项目使用 MIT 许可证
 
-Copyright (c) 2025 社区网站项目团队
+Copyright (c) 2025 huluobuo
 
 [MIT许可证全文](https://opensource.org/licenses/MIT)
 
