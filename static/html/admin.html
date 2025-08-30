@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员页面 - huluobuo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/custom.min.css" rel="stylesheet">
+    
+    <!-- 内联JavaScript，用于在页面加载前应用主题，避免闪烁 -->
+    <script>
+        // 读取cookie函数
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        
+        // 立即应用主题，避免页面闪烁
+        (function() {
+            // 优先读取cookie
+            const cookieTheme = getCookie('theme');
+            
+            // 如果没有cookie，读取localStorage
+            const savedTheme = cookieTheme === undefined ? localStorage.getItem('theme') : cookieTheme;
+            
+            // 检查系统暗色模式偏好
+            const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // 确定要应用的主题
+            const themeToApply = cookieTheme === 'dark' || (cookieTheme === undefined && savedTheme === 'dark') || (!cookieTheme && !savedTheme && prefersDarkMode) ? 'dark' : 'light';
+            
+            // 立即应用主题到HTML元素
+            document.documentElement.setAttribute('data-theme', themeToApply);
+            
+            // 如果是暗色模式，添加必要的CSS类
+            if (themeToApply === 'dark') {
+                document.documentElement.classList.add('dark-mode-initial');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">huluobuo</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/message-board">论坛</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/files">资源</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">关于我们</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/more">更多</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/admin">管理员面板 <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                <div class="ml-auto">
+                    <span class="navbar-text mr-3">欢迎，管理员 {{ session.username }}！</span>
+                    <a href="/logout" class="btn btn-danger mr-2">注销</a>
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-5">管理员面板</h2>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            {{ success }}
+        </div>
+        {% endif %}
+        
+        <!-- 管理员功能卡片 -->
+        <div class="row">
+            <!-- 用户管理 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">用户管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">管理社区用户，查看用户信息，删除违规用户。</p>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#userManagementModal">用户管理</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 留言管理 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">留言管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">查看和删除论坛留言，维护社区秩序。</p>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#messageManagementModal">留言管理</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 文件管理 -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">文件管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">管理用户上传的文件，删除违规或过期文件。</p>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#fileManagementModal">文件管理</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 系统信息 -->
+        <div class="card mt-5 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">系统信息</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <h6>注册用户总数</h6>
+                            <p class="info-value">{{ user_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <h6>论坛留言总数</h6>
+                            <p class="info-value">{{ message_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <h6>上传文件总数</h6>
+                            <p class="info-value">{{ file_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <h6>总文件大小</h6>
+                            <p class="info-value">{{ total_file_size }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户管理模态框 -->
+    <div class="modal fade" id="userManagementModal" tabindex="-1" role="dialog" aria-labelledby="userManagementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="userManagementModalLabel">用户管理</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">用户名</th>
+                                <th scope="col">邮箱</th>
+                                <th scope="col">注册时间</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for username, user_info in users.items() %}
+                            <tr>
+                                <td>{{ username }}</td>
+                                <td>{{ user_info.email }}</td>
+                                <td>{{ user_info.created_at }}</td>
+                                <td>
+                                    <form action="/admin/delete_user" method="POST" style="display: inline;">
+                                        <input type="hidden" name="username" value="{{ username }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除用户 {{ username }} 吗？');">删除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 留言管理模态框 -->
+    <div class="modal fade" id="messageManagementModal" tabindex="-1" role="dialog" aria-labelledby="messageManagementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="messageManagementModalLabel">留言管理</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">用户名</th>
+                                <th scope="col">留言内容</th>
+                                <th scope="col">留言时间</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                            <tr>
+                                <td>{{ message.name }}</td>
+                                <td>{{ message.content }}</td>
+                                <td>{{ message.time }}</td>
+                                <td>
+                                    <form action="/admin/delete_message" method="POST" style="display: inline;">
+                                        <input type="hidden" name="message_index" value="{{ loop.index0 }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除这条留言吗？');">删除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文件管理模态框 -->
+    <div class="modal fade" id="fileManagementModal" tabindex="-1" role="dialog" aria-labelledby="fileManagementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="fileManagementModalLabel">文件管理</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">文件名</th>
+                                <th scope="col">文件大小</th>
+                                <th scope="col">上传时间</th>
+                                <th scope="col">文件分类</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file_info in files %}
+                            <tr>
+                                <td>{{ file_info.name }}</td>
+                                <td>{{ file_info.size }}</td>
+                                <td>{{ file_info.time }}</td>
+                                <td>{{ file_info.category }}</td>
+                                <td>
+                                    <form action="/admin/delete_file" method="POST" style="display: inline;">
+                                        <input type="hidden" name="filename" value="{{ file_info.name }}">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除文件 {{ file_info.name }} 吗？');">删除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                © 2025 huluobuo. 保留所有权利。
+            </div>
+            <div class="footer-links">
+                <a href="/about">关于我们</a>
+                <a href="/">首页</a>
+                <a href="/message-board">论坛</a>
+                <a href="/files">资源</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 主题切换脚本 -->
+    <script src="/static/js/theme.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>huluobuo - 更多</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/custom.min.css" rel="stylesheet">
+    
+    <!-- 内联JavaScript，用于在页面加载前应用主题，避免闪烁 -->
+    <script>
+        // 读取cookie函数
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        
+        // 立即应用主题，避免页面闪烁
+        (function() {
+            // 优先读取cookie
+            const cookieTheme = getCookie('theme');
+            
+            // 如果没有cookie，读取localStorage
+            const savedTheme = cookieTheme === undefined ? localStorage.getItem('theme') : cookieTheme;
+            
+            // 检查系统暗色模式偏好
+            const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // 确定要应用的主题
+            const themeToApply = cookieTheme === 'dark' || (cookieTheme === undefined && savedTheme === 'dark') || (!cookieTheme && !savedTheme && prefersDarkMode) ? 'dark' : 'light';
+            
+            // 立即应用主题到HTML元素
+            document.documentElement.setAttribute('data-theme', themeToApply);
+            
+            // 如果是暗色模式，添加必要的CSS类
+            if (themeToApply === 'dark') {
+                document.documentElement.classList.add('dark-mode-initial');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">huluobuo</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/message-board">论坛</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/files">资源</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">关于我们</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/more">更多 <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                <div class="ml-auto">
+                    {% if session.username %}
+                        <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
+                        <a href="/logout" class="btn btn-danger mr-2">注销</a>
+                    {% else %}
+                        <a href="/login" class="btn btn-secondary mr-2">登录</a>
+                        <a href="/register" class="btn btn-primary mr-2">注册</a>
+                    {% endif %}
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">更多功能</h2>
+        
+        <!-- 功能卡片 -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">编程挑战</h5>
+                        <p class="card-text">参与我们的编程挑战，提升您的编程技能，与社区成员一起成长。</p>
+                        <a href="#" class="btn btn-primary" disabled>功能开发中</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">学习路径</h5>
+                        <p class="card-text">我们为不同水平的学习者提供系统化的学习路径，帮助您高效学习编程知识。</p>
+                        <a href="#" class="btn btn-primary" disabled>功能开发中</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">项目协作</h5>
+                        <p class="card-text">找到志同道合的伙伴，一起开发有趣的项目，积累实战经验。</p>
+                        <a href="#" class="btn btn-primary" disabled>功能开发中</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">技术博客</h5>
+                        <p class="card-text">阅读和分享技术文章，了解最新的技术动态和最佳实践。</p>
+                        <a href="#" class="btn btn-primary" disabled>功能开发中</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 反馈表单 -->
+        <div class="card mt-5 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-primary">给我们反馈</h5>
+                <p class="card-text">如果您有任何建议或问题，请告诉我们，帮助我们改进社区体验。</p>
+                <form id="feedback-form">
+                    <div class="form-group">
+                        <label for="feedback-name">您的昵称</label>
+                        <input type="text" class="form-control" id="feedback-name" placeholder="请输入您的昵称">
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-content">反馈内容</label>
+                        <textarea class="form-control" id="feedback-content" rows="3" placeholder="请输入您的反馈内容"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交反馈</button>
+                </form>
+                <div id="feedback-status" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                © 2025 huluobuo. 保留所有权利。
+            </div>
+            <div class="footer-links">
+                <a href="/about">关于我们</a>
+                <a href="/">首页</a>
+                <a href="/message-board">论坛</a>
+                <a href="/files">资源</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 反馈表单脚本 -->
+    <script>
+        document.getElementById('feedback-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const status = document.getElementById('feedback-status');
+            status.className = 'alert alert-success';
+            status.textContent = '感谢您的反馈！我们会认真对待每一条建议。';
+            setTimeout(() => {
+                status.textContent = '';
+                status.className = '';
+                this.reset();
+            }, 3000);
+        });
+    </script>
+
+    <!-- 主题切换脚本 -->
+    <script src="/static/js/theme.min.js"></script>
+</body>
+</html>
