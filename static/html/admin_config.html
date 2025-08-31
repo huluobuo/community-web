@@ -102,23 +102,28 @@
         </div>
         {% endif %}
         
+        <!-- 环境变量配置已禁用提示 -->
+        <div class="alert alert-warning" role="alert">
+            <strong>注意：</strong>环境变量配置功能已被禁用，系统将保持当前配置不变。应用配置部分仍可正常使用。
+        </div>
+        
         <div class="card shadow-sm">
             <div class="card-body">
                 <form method="POST" action="/admin/config">
-                    <!-- 环境变量配置 -->
+                    <!-- 环境变量配置 - 已禁用 -->
                     <div class="mb-5">
-                        <h3 class="border-bottom pb-2 mb-4">环境变量配置</h3>
+                        <h3 class="border-bottom pb-2 mb-4">环境变量配置 <span class="badge badge-danger">已禁用</span></h3>
                         
                         <div class="form-group">
                             <label for="SECRET_KEY">Flask应用密钥 (SECRET_KEY)</label>
-                            <input type="text" class="form-control" id="SECRET_KEY" name="SECRET_KEY" value="{{ env_config.get('SECRET_KEY', '') }}" placeholder="请输入应用密钥">
-                            <small class="form-text text-muted">用于加密会话数据的密钥，建议使用随机生成的长字符串。</small>
+                            <input type="text" class="form-control" id="SECRET_KEY" name="SECRET_KEY" value="{{ env_config.get('SECRET_KEY', '') }}" placeholder="请输入应用密钥" disabled readonly>
+                            <small class="form-text text-muted">环境变量配置已被禁用，如需修改请联系系统管理员。</small>
                         </div>
                         
                         <div class="form-group">
                             <label for="DEFAULT_ADMIN_PASSWORD">默认管理员密码 (DEFAULT_ADMIN_PASSWORD)</label>
-                            <input type="password" class="form-control" id="DEFAULT_ADMIN_PASSWORD" name="DEFAULT_ADMIN_PASSWORD" value="{{ env_config.get('DEFAULT_ADMIN_PASSWORD', '') }}" placeholder="请输入默认管理员密码">
-                            <small class="form-text text-muted">用于首次创建管理员账户的密码。</small>
+                            <input type="password" class="form-control" id="DEFAULT_ADMIN_PASSWORD" name="DEFAULT_ADMIN_PASSWORD" value="{{ env_config.get('DEFAULT_ADMIN_PASSWORD', '') }}" placeholder="请输入默认管理员密码" disabled readonly>
+                            <small class="form-text text-muted">环境变量配置已被禁用，如需修改请联系系统管理员。</small>
                         </div>
                     </div>
                     

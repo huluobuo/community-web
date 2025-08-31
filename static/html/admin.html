@@ -71,7 +71,9 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="/admin">面板首页</a>
+                            {% if session.username == 'admin' %}
                             <a class="dropdown-item" href="/admin/config">系统配置</a>
+                            {% endif %}
                         </div>
                     </li>
                 </ul>
@@ -143,7 +145,8 @@
                 </div>
             </div>
             
-            <!-- 配置管理 -->
+            <!-- 配置管理 - 仅对超级管理员显示 -->
+            {% if session.username == 'admin' %}
             <div class="col-md-3 mb-4">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header bg-primary text-white">
@@ -155,6 +158,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
         
         <!-- 系统信息 -->

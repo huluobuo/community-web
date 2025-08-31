@@ -407,36 +407,43 @@ def admin_required(func):
         return func(*args, **kwargs)
     return decorated_function
 
+# 配置管理权限装饰器 - 只有特定用户可以配置
+def config_admin_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        # 首先检查是否是管理员
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        
+        username = session['username']
+        if username not in users or not users[username].get('is_admin', False):
+            return "权限不足，只有管理员可以访问此页面", 403
+        
+        # 限制只有特定的超级管理员可以访问配置管理
+        # 目前只允许原始管理员用户访问配置管理
+        if username != 'admin':
+            return "权限不足，只有超级管理员可以访问配置管理页面", 403
+        
+        return func(*args, **kwargs)
+    return decorated_function
+
 # 配置管理路由
 @app.route('/admin/config', methods=['GET', 'POST'])
-@admin_required
+@config_admin_required
 def admin_config():
     if request.method == 'POST':
         try:
-            # 读取当前.env文件内容
-            with open('.env', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            # 创建一个字典来存储配置
+            # 读取当前.env文件内容以显示，但不进行修改
             config_dict = {}
-            for line in lines:
-                if '=' in line and not line.strip().startswith('#'):
-                    key, value = line.strip().split('=', 1)
-                    config_dict[key] = value
-            
-            # 更新配置
-            if 'SECRET_KEY' in request.form and request.form['SECRET_KEY'].strip():
-                config_dict['SECRET_KEY'] = request.form['SECRET_KEY']
-                app.config['SECRET_KEY'] = request.form['SECRET_KEY']
-            
-            if 'DEFAULT_ADMIN_PASSWORD' in request.form and request.form['DEFAULT_ADMIN_PASSWORD'].strip():
-                config_dict['DEFAULT_ADMIN_PASSWORD'] = request.form['DEFAULT_ADMIN_PASSWORD']
-            
-            # 保存更新后的配置到.env文件
-            with open('.env', 'w', encoding='utf-8') as f:
-                f.write('# 环境配置文件\n\n')
-                for key, value in config_dict.items():
-                    f.write(f'{key}={value}\n')
+            if os.path.exists('.env'):
+                try:
+                    with open('.env', 'r', encoding='utf-8') as f:
+                        for line in f.readlines():
+                            if '=' in line and not line.strip().startswith('#'):
+                                key, value = line.strip().split('=', 1)
+                                config_dict[key] = value
+                except:
+                    pass
             
             # 处理其他配置
             # 更新全局变量
