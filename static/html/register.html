@@ -42,100 +42,89 @@
 </head>
 <body>
     <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">编程爱好者社区</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">首页</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/message-board">论坛</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/files">资源</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">关于我们</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/more">更多</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/register">注册</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">登录</a>
-                    </li>
-                </ul>
-                <div class="ml-auto">
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <a class="navbar-brand" href="/">编程爱好者社区</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/message-board">论坛</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/files">资源</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">关于我们</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/more">更多</a>
+                </li>
+            </ul>
+            <div class="ml-auto">
+                <a href="/login" class="btn btn-secondary mr-2">登录</a>
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- 主内容区域 -->
     <main class="container mt-5 mb-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white text-center">
+        <section class="row justify-content-center">
+            <article class="col-md-6">
+                <section class="card">
+                    <header class="card-header bg-primary text-white text-center">
                         <h2>创建新账户</h2>
-                    </div>
-                    <div class="card-body">
+                    </header>
+                    <section class="card-body">
                         {% if error %}
                         <div class="alert alert-danger" role="alert">
                             {{ error }}
                         </div>
                         {% endif %}
                         <form method="POST" action="/register">
-                            <div class="form-group">
+                            <section class="form-group">
                                 <label for="username">用户名</label>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" required>
-                            </div>
-                            <div class="form-group">
+                            </section>
+                            <section class="form-group">
                                 <label for="email">电子邮箱</label>
                                 <input type="email" class="form-control" id="email" name="email" placeholder="请输入电子邮箱" required>
-                            </div>
-                            <div class="form-group">
+                            </section>
+                            <section class="form-group">
                                 <label for="password">密码</label>
                                 <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码（至少6个字符）" required>
-                            </div>
-                            <div class="form-group">
+                            </section>
+                            <section class="form-group">
                                 <label for="confirm_password">确认密码</label>
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="请再次输入密码" required>
-                            </div>
+                            </section>
                             <button type="submit" class="btn btn-primary btn-block">注册</button>
                         </form>
-                        <div class="text-center mt-3">
+                        <section class="text-center mt-3">
                             <p>已有账户？<a href="/login">立即登录</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </section>
+                    </section>
+                </section>
+            </article>
+        </section>
     </main>
 
     <!-- 页脚 -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                © 2025 编程爱好者社区. 保留所有权利。
-            </div>
-            <div class="footer-links">
-                <a href="/about">关于我们</a>
-                <a href="/">首页</a>
-                <a href="/message-board">论坛</a>
-                <a href="/files">资源</a>
-            </div>
-        </div>
+        <p class="footer-copyright">© 2025 编程爱好者社区. 保留所有权利。</p>
+        <nav class="footer-links">
+            <a href="/about">关于我们</a>
+            <a href="/">首页</a>
+            <a href="/message-board">论坛</a>
+            <a href="/files">资源</a>
+        </nav>
     </footer>
 
     <!-- Font Awesome -->

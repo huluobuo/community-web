@@ -43,59 +43,57 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">编程爱好者社区</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">首页</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/message-board">论坛</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/files">资源</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/about">关于我们 <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/more">更多</a>
-                    </li>
-                </ul>
-                <div class="ml-auto">
-                    {% if session.username %}
-                        <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
-                        <a href="/logout" class="btn btn-danger mr-2">注销</a>
-                    {% else %}
-                        <a href="/login" class="btn btn-secondary mr-2">登录</a>
-                        <a href="/register" class="btn btn-primary mr-2">注册</a>
-                    {% endif %}
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+        <a class="navbar-brand" href="/">编程爱好者社区</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/message-board">论坛</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/files">资源</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">关于我们</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/more">更多</a>
+                </li>
+            </ul>
+            <div class="ml-auto">
+                {% if session.username %}
+                    <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
+                    <a href="/logout" class="btn btn-danger mr-2">注销</a>
+                {% else %}
+                    <a href="/login" class="btn btn-secondary mr-2">登录</a>
+                    <a href="/register" class="btn btn-primary mr-2">注册</a>
+                {% endif %}
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- 主容器 -->
-    <div class="container mt-5">
+    <main class="container mt-5">
         <h2 class="text-center mb-4">关于编程爱好者社区</h2>
         
         <!-- 关于我们内容 -->
-        <div class="card mb-5 shadow-sm">
-            <div class="card-body">
+        <article class="card mb-5 shadow-sm">
+            <section class="card-body">
                 <h5 class="card-title text-primary">社区简介</h5>
                 <p class="card-text">编程爱好者社区是一个致力于为程序员、编程学习者提供交流、学习和分享平台的非盈利社区。我们的目标是帮助更多的人进入编程的世界，提高编程技能，解决学习和工作中遇到的问题。</p>
-            </div>
-        </div>
+            </section>
+        </article>
 
-        <div class="card mb-5 shadow-sm">
-            <div class="card-body">
+        <article class="card mb-5 shadow-sm">
+            <section class="card-body">
                 <h5 class="card-title text-primary">我们的使命</h5>
                 <p class="card-text">我们致力于打造一个友好、包容、互助的编程学习社区，让每一位成员都能在这里找到归属感，共同成长。</p>
                 <ul class="list-group list-group-flush mt-3">
@@ -104,25 +102,21 @@
                     <li class="list-group-item">组织线上线下的技术活动</li>
                     <li class="list-group-item">帮助成员解决学习和工作中的技术问题</li>
                 </ul>
-            </div>
-        </div>
+            </section>
+        </article>
 
-        <div class="card mb-5 shadow-sm">
-            <div class="card-body">
+        <article class="card mb-5 shadow-sm">
+            <section class="card-body">
                 <h5 class="card-title text-primary">加入我们</h5>
                 <p class="card-text">无论您是编程新手还是经验丰富的开发者，只要您对编程有热情，都欢迎加入我们的社区！</p>
                 <a href="/message-board" class="btn btn-primary mt-3">立即加入讨论</a>
-            </div>
-        </div>
-    </div>
+            </section>
+        </article>
+    </main>
 
     <!-- 页脚 -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                © 2025 huluobuo. 保留所有权利。
-            </div>
-        </div>
+        <p class="footer-copyright">© 2025 huluobuo. 保留所有权利。</p>
     </footer>
 
     <!-- Font Awesome -->

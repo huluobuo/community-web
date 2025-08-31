@@ -43,180 +43,139 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">编程爱好者社区</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">首页</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/message-board">论坛</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/files">资源</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">关于我们</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/more">更多</a>
-                    </li>
-                </ul>
-                <div class="ml-auto">
-                    {% if session.username %}
-                        <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
-                        <a href="/logout" class="btn btn-danger mr-2">注销</a>
-                    {% else %}
-                        <a href="/login" class="btn btn-secondary mr-2">登录</a>
-                        <a href="/register" class="btn btn-primary mr-2">注册</a>
-                    {% endif %}
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+        <a class="navbar-brand" href="/">编程爱好者社区</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/message-board">论坛</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/files">资源</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">关于我们</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/more">更多</a>
+                </li>
+            </ul>
+            <div class="ml-auto">
+                {% if session.username %}
+                    <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
+                    <a href="/logout" class="btn btn-danger mr-2">注销</a>
+                {% else %}
+                    <a href="/login" class="btn btn-secondary mr-2">登录</a>
+                    <a href="/register" class="btn btn-primary mr-2">注册</a>
+                {% endif %}
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- 主容器 -->
-    <div class="container mt-5 mb-5">
+    <main class="container mt-5 mb-5">
         <h2 class="text-center mb-5">文件下载详情</h2>
         
         {% if file_info %}
         <!-- 文件信息卡片 -->
-        <div class="card shadow-lg mb-5">
+        <article class="card shadow-lg mb-5">
             <!-- 文件头部信息 -->
-            <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between items-center">
-                    <h3 class="mb-0">{{ file_info.name }}</h3>
-                    <div class="d-flex gap-2">
-                        <span class="badge badge-light text-primary">{{ file_info.category }}</span>
-                        <span class="badge badge-light text-primary">{{ file_info.size }}</span>
-                    </div>
-                </div>
-            </div>
+            <header class="card-header bg-primary text-white">
+                <h3>{{ file_info.name }}</h3>
+                <span class="badge badge-light text-primary">{{ file_info.category }}</span>
+                <span class="badge badge-light text-primary">{{ file_info.size }}</span>
+            </header>
             
-            <div class="card-body">
-                <div class="row">
-                    <!-- 文件图标和操作按钮 -->
-                    <div class="col-md-4">
-                        <div class="text-center mb-4">
-                            <!-- 根据文件类型显示不同图标 -->
-                            <div class="file-icon" style="font-size: 8rem; margin-bottom: 2rem;">
-                                {% if file_info.mime_type.startswith('image/') %}
-                                    <i class="fas fa-image text-primary"></i>
-                                {% elif file_info.mime_type == 'application/pdf' %}
-                                    <i class="fas fa-file-pdf text-danger"></i>
-                                {% elif file_info.mime_type.startswith('text/') or file_info.category == '代码' %}
-                                    <i class="fas fa-file-code text-info"></i>
-                                {% elif file_info.mime_type.startswith('audio/') %}
-                                    <i class="fas fa-file-audio text-success"></i>
-                                {% elif file_info.mime_type.startswith('video/') %}
-                                    <i class="fas fa-file-video text-warning"></i>
-                                {% elif file_info.category == '压缩包' %}
-                                    <i class="fas fa-file-archive text-secondary"></i>
-                                {% else %}
-                                    <i class="fas fa-file text-secondary"></i>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- 主要操作按钮 -->
-                            <div class="d-grid gap-3">
-                                <a href="/download/{{ file_info.name }}" class="btn btn-success btn-lg">
-                                    <i class="fas fa-download mr-2"></i>立即下载
-                                </a>
-                                <a href="/files" class="btn btn-secondary btn-lg">
-                                    <i class="fas fa-arrow-left mr-2"></i>返回列表
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 文件详细信息 -->
-                    <div class="col-md-8">
-                        <div class="file-details bg-light p-4 rounded-lg">
-                            <h4 class="mb-3 text-primary">文件信息</h4>
-                            
-                            <div class="row">
-                                <div class="col-sm-6 mb-3">
-                                    <div class="detail-item">
-                                        <strong>文件名:</strong> {{ file_info.name }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <div class="detail-item">
-                                        <strong>文件大小:</strong> {{ file_info.size }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <div class="detail-item">
-                                        <strong>上传时间:</strong> {{ file_info.time }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <div class="detail-item">
-                                        <strong>文件类型:</strong> {{ file_info.mime_type }}
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 mb-3">
-                                    <div class="detail-item">
-                                        <strong>文件分类:</strong> {{ file_info.category }}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {% if file_info.description %}
-                            <div class="detail-item mt-4">
-                                <strong>文件备注:</strong>
-                                <div class="mt-2 p-3 bg-white border rounded shadow-sm">
-                                    <p>{{ file_info.description }}</p>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
+            <section class="card-body">
+                <!-- 文件图标和操作按钮 -->
+                <aside class="col-md-4">
+                    <header class="text-center mb-4">
+                        <!-- 根据文件类型显示不同图标 -->
+                        {% if file_info.mime_type.startswith('image/') %}
+                            <i class="fas fa-image text-primary" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% elif file_info.mime_type == 'application/pdf' %}
+                            <i class="fas fa-file-pdf text-danger" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% elif file_info.mime_type.startswith('text/') or file_info.category == '代码' %}
+                            <i class="fas fa-file-code text-info" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% elif file_info.mime_type.startswith('audio/') %}
+                            <i class="fas fa-file-audio text-success" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% elif file_info.mime_type.startswith('video/') %}
+                            <i class="fas fa-file-video text-warning" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% elif file_info.category == '压缩包' %}
+                            <i class="fas fa-file-archive text-secondary" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% else %}
+                            <i class="fas fa-file text-secondary" style="font-size: 8rem; margin-bottom: 2rem;"></i>
+                        {% endif %}
                         
-                        <!-- 下载提示 -->
-                        <div class="mt-4 p-3 bg-info text-white rounded-lg">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            <strong>下载提示:</strong> 请确认文件信息无误后再进行下载。如有任何问题，请联系管理员。
+                        <!-- 主要操作按钮 -->
+                        <a href="/download/{{ file_info.name }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-download mr-2"></i>立即下载
+                        </a>
+                        <a href="/files" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left mr-2"></i>返回列表
+                        </a>
+                    </header>
+                </aside>
+                
+                <!-- 文件详细信息 -->
+                <section class="col-md-8">
+                    <header class="file-details bg-light p-4 rounded-lg">
+                        <h4 class="mb-3 text-primary">文件信息</h4>
+                        
+                        <strong>文件名:</strong> {{ file_info.name }}<br>
+                        <strong>文件大小:</strong> {{ file_info.size }}<br>
+                        <strong>上传时间:</strong> {{ file_info.time }}<br>
+                        <strong>文件类型:</strong> {{ file_info.mime_type }}<br>
+                        <strong>文件分类:</strong> {{ file_info.category }}<br>
+                        
+                        {% if file_info.description %}
+                        <div class="mt-4">
+                            <strong>文件备注:</strong>
+                            <p class="mt-2 p-3 bg-white border rounded shadow-sm">{{ file_info.description }}</p>
                         </div>
+                        {% endif %}
+                    </header>
+                    
+                    <!-- 下载提示 -->
+                    <div class="mt-4 p-3 bg-info text-white rounded-lg">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>下载提示:</strong> 请确认文件信息无误后再进行下载。如有任何问题，请联系管理员。
                     </div>
-                </div>
-            </div>
-        </div>
+                </section>
+            </section>
+        </article>
         
         <!-- 相关文件推荐 -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white">
-                <h4 class="mb-0">推荐文件</h4>
-            </div>
-            <div class="card-body">
+        <article class="card shadow-sm">
+            <header class="card-header bg-secondary text-white">
+                <h4>推荐文件</h4>
+            </header>
+            <section class="card-body">
                 <p class="text-center text-muted">我们为您推荐以下相关文件</p>
-                <!-- 这里可以添加相关文件推荐的代码 -->
-            </div>
-        </div>
+            </section>
+        </article>
         {% else %}
         <!-- 文件不存在提示 -->
         <div class="alert alert-danger text-center" role="alert">
-            <div class="file-icon" style="font-size: 8rem; margin-bottom: 1rem; color: #dc3545;">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
+            <i class="fas fa-exclamation-circle" style="font-size: 8rem; margin-bottom: 1rem; color: #dc3545;"></i>
             <h4 class="alert-heading mb-2">文件不存在</h4>
             <p class="mb-4">您请求的文件不存在或已被删除。</p>
             <a href="/files" class="btn btn-primary">返回文件列表</a>
         </div>
         {% endif %}
-    </div>
+    </main>
 
     <!-- 页脚 -->
     <footer class="bg-dark text-white py-4">
-        <div class="container text-center">
-            <p>© 2025 编程爱好者社区. 保留所有权利。</p>
-        </div>
+        <p class="text-center">© 2025 编程爱好者社区. 保留所有权利。</p>
     </footer>
 
     <!-- Font Awesome -->

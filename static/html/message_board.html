@@ -43,63 +43,61 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">编程爱好者社区</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">首页</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/message-board">论坛 <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/files">资源</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">关于我们</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/more">更多</a>
-                    </li>
-                </ul>
-                <div class="ml-auto">
-                    {% if session.username %}
-                        <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
-                        <a href="/logout" class="btn btn-danger mr-2">注销</a>
-                    {% else %}
-                        <a href="/login" class="btn btn-secondary mr-2">登录</a>
-                        <a href="/register" class="btn btn-primary mr-2">注册</a>
-                    {% endif %}
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
+        <a class="navbar-brand" href="/">编程爱好者社区</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/message-board">论坛</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/files">资源</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">关于我们</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/more">更多</a>
+                </li>
+            </ul>
+            <div class="ml-auto">
+                {% if session.username %}
+                    <span class="navbar-text mr-3">欢迎，{{ session.username }}！</span>
+                    <a href="/logout" class="btn btn-danger mr-2">注销</a>
+                {% else %}
+                    <a href="/login" class="btn btn-secondary mr-2">登录</a>
+                    <a href="/register" class="btn btn-primary mr-2">注册</a>
+                {% endif %}
+                <button id="theme-toggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- 主容器 -->
-    <div class="container mt-5">
+    <main class="container mt-5">
         <h2 class="text-center mb-4">社区论坛</h2>
         
         <!-- 留言表单 -->
-        <div class="card mb-5 shadow-sm">
-            <div class="card-body">
+        <article class="card mb-5 shadow-sm">
+            <section class="card-body">
                 <h5 class="card-title">发表留言</h5>
                 {% if session.username %}
                     <form method="POST" action="/add_message">
-                        <div class="form-group">
+                        <section class="form-group">
                             <label for="name">您的名字</label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ session.username }}" readonly>
-                        </div>
-                        <div class="form-group">
+                        </section>
+                        <section class="form-group">
                             <label for="message">留言内容</label>
                             <textarea class="form-control" id="message" name="message" rows="3" placeholder="请输入您的留言内容" required></textarea>
-                        </div>
+                        </section>
                         <button type="submit" class="btn btn-primary">发表留言</button>
                     </form>
                 {% else %}
@@ -107,44 +105,40 @@
                         请先<a href="/login">登录</a>后再发表留言。
                     </div>
                 {% endif %}
-            </div>
-        </div>
+            </section>
+        </article>
 
         <!-- 留言列表 -->
-        <div class="message-list">
+        <section class="message-list">
             {% if messages %}
                 {% for message in messages %}
-                <div class="message card mb-3 shadow-sm">
-                    <div class="card-body">
-                        <div class="message-header d-flex justify-content-between">
+                <article class="message card mb-3 shadow-sm">
+                    <section class="card-body">
+                        <header class="message-header d-flex justify-content-between">
                             <h6 class="message-author font-weight-bold text-primary">{{ message.name }}</h6>
                             <span class="message-time text-muted">{{ message.time }}</span>
-                        </div>
+                        </header>
                         <p class="message-content mt-2">{{ message.content }}</p>
-                    </div>
-                </div>
+                    </section>
+                </article>
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info text-center" role="alert">
                     还没有留言，快来发表第一条留言吧！
                 </div>
             {% endif %}
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- 页脚 -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-copyright">
-                © 2025 编程爱好者社区. 保留所有权利。
-            </div>
-            <div class="footer-links">
-                <a href="/about">关于我们</a>
-                <a href="/">首页</a>
-                <a href="/files">资源</a>
-                <a href="/more">更多</a>
-            </div>
-        </div>
+        <p class="footer-copyright">© 2025 编程爱好者社区. 保留所有权利。</p>
+        <nav class="footer-links">
+            <a href="/about">关于我们</a>
+            <a href="/">首页</a>
+            <a href="/files">资源</a>
+            <a href="/more">更多</a>
+        </nav>
     </footer>
 
     <!-- Font Awesome -->
