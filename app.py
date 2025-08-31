@@ -244,9 +244,11 @@ def upload_file():
             save_file_metadata()
         
         return jsonify({'success': True, 'filename': filename}), 200
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -404,6 +406,121 @@ def admin_required(func):
         
         return func(*args, **kwargs)
     return decorated_function
+
+# 配置管理路由
+@app.route('/admin/config', methods=['GET', 'POST'])
+@admin_required
+def admin_config():
+    if request.method == 'POST':
+        try:
+            # 读取当前.env文件内容
+            with open('.env', 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # 创建一个字典来存储配置
+            config_dict = {}
+            for line in lines:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    config_dict[key] = value
+            
+            # 更新配置
+            if 'SECRET_KEY' in request.form and request.form['SECRET_KEY'].strip():
+                config_dict['SECRET_KEY'] = request.form['SECRET_KEY']
+                app.config['SECRET_KEY'] = request.form['SECRET_KEY']
+            
+            if 'DEFAULT_ADMIN_PASSWORD' in request.form and request.form['DEFAULT_ADMIN_PASSWORD'].strip():
+                config_dict['DEFAULT_ADMIN_PASSWORD'] = request.form['DEFAULT_ADMIN_PASSWORD']
+            
+            # 保存更新后的配置到.env文件
+            with open('.env', 'w', encoding='utf-8') as f:
+                f.write('# 环境配置文件\n\n')
+                for key, value in config_dict.items():
+                    f.write(f'{key}={value}\n')
+            
+            # 处理其他配置
+            # 更新全局变量
+            if 'MAX_DOWNLOADS_PER_MINUTE' in request.form and request.form['MAX_DOWNLOADS_PER_MINUTE'].strip():
+                try:
+                    max_downloads = int(request.form['MAX_DOWNLOADS_PER_MINUTE'])
+                    app.config['MAX_DOWNLOADS_PER_MINUTE'] = max_downloads
+                except ValueError:
+                    pass
+            
+            # 更新阻止的User-Agent
+            if 'BLOCKED_USER_AGENTS' in request.form:
+                blocked_agents = request.form['BLOCKED_USER_AGENTS'].strip()
+                if blocked_agents:
+                    app.config['BLOCKED_USER_AGENTS'] = [agent.strip() for agent in blocked_agents.split(',')]
+                else:
+                    app.config['BLOCKED_USER_AGENTS'] = []
+            
+            # 更新IP白名单
+            if 'WHITELISTED_IPS' in request.form:
+                whitelisted_ips = request.form['WHITELISTED_IPS'].strip()
+                if whitelisted_ips:
+                    app.config['WHITELISTED_IPS'] = [ip.strip() for ip in whitelisted_ips.split(',')]
+                else:
+                    app.config['WHITELISTED_IPS'] = []
+            
+            # 更新用户名白名单
+            if 'WHITELISTED_USERNAMES' in request.form:
+                whitelisted_usernames = request.form['WHITELISTED_USERNAMES'].strip()
+                if whitelisted_usernames:
+                    app.config['WHITELISTED_USERNAMES'] = [username.strip() for username in whitelisted_usernames.split(',')]
+                else:
+                    app.config['WHITELISTED_USERNAMES'] = []
+            
+            # 刷新配置
+            load_dotenv()
+            
+            return render_template('admin_config.html', 
+                                 env_config=config_dict, 
+                                 max_downloads=app.config.get('MAX_DOWNLOADS_PER_MINUTE', 5), 
+                                 blocked_agents=', '.join(app.config.get('BLOCKED_USER_AGENTS', [])),
+                                 whitelisted_ips=', '.join(app.config.get('WHITELISTED_IPS', [])),
+                                 whitelisted_usernames=', '.join(app.config.get('WHITELISTED_USERNAMES', [])),
+                                 success='配置已成功保存！')
+            
+        except Exception as e:
+            # 读取.env文件以获取当前配置
+            config_dict = {}
+            if os.path.exists('.env'):
+                try:
+                    with open('.env', 'r', encoding='utf-8') as f:
+                        for line in f.readlines():
+                            if '=' in line and not line.strip().startswith('#'):
+                                key, value = line.strip().split('=', 1)
+                                config_dict[key] = value
+                except:
+                    pass
+            
+            return render_template('admin_config.html', 
+                                 env_config=config_dict, 
+                                 max_downloads=app.config.get('MAX_DOWNLOADS_PER_MINUTE', 5), 
+                                 blocked_agents=', '.join(app.config.get('BLOCKED_USER_AGENTS', [])),
+                                 whitelisted_ips=', '.join(app.config.get('WHITELISTED_IPS', [])),
+                                 whitelisted_usernames=', '.join(app.config.get('WHITELISTED_USERNAMES', [])),
+                                 error=f'保存配置时出错: {str(e)}')
+    else:
+        # 读取.env文件以显示当前配置
+        config_dict = {}
+        if os.path.exists('.env'):
+            try:
+                with open('.env', 'r', encoding='utf-8') as f:
+                    for line in f.readlines():
+                        if '=' in line and not line.strip().startswith('#'):
+                            key, value = line.strip().split('=', 1)
+                            config_dict[key] = value
+            except:
+                pass
+        
+        return render_template('admin_config.html', 
+                             env_config=config_dict, 
+                             max_downloads=app.config.get('MAX_DOWNLOADS_PER_MINUTE', 5), 
+                             blocked_agents=', '.join(app.config.get('BLOCKED_USER_AGENTS', [])),
+                             whitelisted_ips=', '.join(app.config.get('WHITELISTED_IPS', [])),
+                             whitelisted_usernames=', '.join(app.config.get('WHITELISTED_USERNAMES', [])))
 
 # 管理员页面路由
 @app.route('/admin')

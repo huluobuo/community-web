@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员页面 - huluobuo</title>
+    <title>编程爱好者社区 - 管理员页面</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/custom.min.css" rel="stylesheet">
     
@@ -44,7 +44,7 @@
     <!-- 导航栏 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/">huluobuo</a>
+            <a class="navbar-brand" href="/">编程爱好者社区</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -65,8 +65,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/more">更多</a>
                     </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/admin">管理员面板 <span class="sr-only">(current)</span></a>
+                    <li class="nav-item dropdown active">
+                        <a class="nav-link dropdown-toggle" href="/admin" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            管理员面板
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/admin">面板首页</a>
+                            <a class="dropdown-item" href="/admin/config">系统配置</a>
+                        </div>
                     </li>
                 </ul>
                 <div class="ml-auto">
@@ -125,7 +131,7 @@
             </div>
             
             <!-- 文件管理 -->
-            <div class="col-md-4 mb-4">
+            <div class="col-md-3 mb-4">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <h5 class="card-title mb-0">文件管理</h5>
@@ -133,6 +139,19 @@
                     <div class="card-body">
                         <p class="card-text">管理用户上传的文件，删除违规或过期文件。</p>
                         <button class="btn btn-primary" data-toggle="modal" data-target="#fileManagementModal">文件管理</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 配置管理 -->
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">配置管理</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">修改系统配置，包括环境变量、下载限制和安全设置。</p>
+                        <a href="/admin/config" class="btn btn-primary">配置管理</a>
                     </div>
                 </div>
             </div>
