@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, session, flash
 from datetime import datetime, timedelta
 import json
 import os
@@ -6,9 +6,21 @@ import humanize
 import mimetypes
 import hashlib
 import time
+import base64
 from collections import defaultdict
 from functools import wraps
 from dotenv import load_dotenv
+
+# 用于AES解密
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+# 首先将用户名和密码转换为UTF-8编码的字符串
+# 模拟前端的TextEncoder/TextDecoder行为
+def encode_decode_utf8(s):
+    # 在Python中，字符串默认就是Unicode，所以我们需要先编码成UTF-8字节，再解码回字符串
+    # 这样可以确保与前端的TextEncoder/TextDecoder行为一致
+    return s.encode('utf-8').decode('utf-8')
 
 # 加载.env文件中的环境变量
 load_dotenv()
@@ -24,9 +36,6 @@ app = Flask(__name__, template_folder='static/html')
 # 存储留言的列表
 messages = []
 
-# 存储用户的字典
-users = {}
-
 # 生成密码哈希
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret-key')  # 从环境变量获取密钥，如不存在则使用默认值
 
@@ -38,35 +47,101 @@ def hash_password(password):
 def verify_password(stored_hash, password):
     return stored_hash == hash_password(password)
 
-# 确保用户数据持久化
-def load_users():
-    global users
+# 解密客户端加密的密码
+# 新的解密函数，支持用户名+密码的组合密钥
+# 客户端现在使用TextEncoder/TextDecoder来确保UTF-8编码
+# 然后使用用户名+密码的组合作为密钥来加密密码
+# 这个函数需要相应地调整以处理新的加密方式
+
+def decrypt_password(encrypted_password, password):
+    try:
+        # 解析加密数据
+        encrypted_data = base64.b64decode(encrypted_password)
+        
+        # 从加密数据中提取盐和密文
+        salt = encrypted_data[:16]
+        ciphertext = encrypted_data[16:]
+        
+        # 从密码和盐生成密钥和IV
+        key = hashlib.sha256(password.encode() + salt).digest()
+        iv = hashlib.md5(password.encode() + salt).digest()
+        
+        # 创建AES解密器并解密
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        decrypted = unpad(cipher.decrypt(ciphertext), AES.block_size)
+        
+        return decrypted.decode('utf-8')
+    except Exception as e:
+        # 如果解密失败，返回原始密码（这是一个回退机制）
+        print(f"解密失败: {str(e)}")
+        return password
+
+# 由于客户端使用CryptoJS的AES加密，我们需要一个兼容的解密函数
+# 现在更新这个函数以支持用户名+密码的组合密钥
+
+def decrypt_cryptojs_aes(encrypted_str, password):
+    try:
+        # 解析CryptoJS格式的加密数据
+        # 格式为: Salted__<salt><ciphertext>
+        encrypted_data = base64.b64decode(encrypted_str)
+        
+        # 检查是否是Salted__格式
+        if encrypted_data[:8] != b'Salted__':
+            raise ValueError("不是有效的CryptoJS AES加密数据")
+        
+        # 提取盐和密文
+        salt = encrypted_data[8:16]
+        ciphertext = encrypted_data[16:]
+        
+        # 使用OpenSSL密钥派生函数从密码和盐生成密钥和IV
+        # 这是CryptoJS默认的密钥派生方式
+        key_iv = hashlib.md5(password.encode() + salt).digest()
+        key = key_iv
+        iv = hashlib.md5(key + password.encode() + salt).digest()
+        
+        # 创建AES解密器并解密
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        decrypted = unpad(cipher.decrypt(ciphertext), AES.block_size)
+        
+        return decrypted.decode('utf-8')
+    except Exception as e:
+        # 如果解密失败，返回原始密码（这是一个回退机制）
+        print(f"解密失败: {str(e)}")
+        return password
+
+# 直接从users.json文件读取用户数据
+def get_users():
     if os.path.exists('users.json'):
         try:
             with open('users.json', 'r', encoding='utf-8') as f:
-                users = json.load(f)
-        except:
-            users = {}
+                return json.load(f)
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+# 确保至少有一个管理员用户并获取用户数据
+def get_safe_users():
+    users = get_users()
     
     # 确保至少有一个管理员用户
     if 'admin' not in users:
-        # 从环境变量获取默认管理员密码
+        # 从环境变量获取默认管理员密码和邮箱
         default_admin_password = os.getenv('DEFAULT_ADMIN_PASSWORD', 'admin123')
+        admin_email = os.getenv('ADMIN_EMAIL', 'admin@example.com')
         users['admin'] = {
-            'email': 'admin@example.com',
+            'email': admin_email,
             'password': hash_password(default_admin_password),  # 使用环境变量中的密码
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'is_admin': True
         }
-        save_users()
+        save_users(users)
+    
+    return users
 
 # 保存用户数据
-def save_users():
+def save_users(users_data):
     with open('users.json', 'w', encoding='utf-8') as f:
-        json.dump(users, f, ensure_ascii=False, indent=2)
-
-# 加载现有用户
-load_users()
+        json.dump(users_data, f, ensure_ascii=False, indent=2)
 
 # 确保数据持久化
 def load_messages():
@@ -252,11 +327,16 @@ def upload_file():
 
 @app.route('/download/<filename>')
 def download_file(filename):
+    # 检查用户是否已登录
+    current_user = session.get('username')
+    
+    # 如果用户未登录，重定向到登录页面
+    if not current_user:
+        flash('请先登录后再下载文件', 'warning')
+        return redirect(url_for('login'))
+    
     # 获取客户端IP
     client_ip = request.remote_addr
-    
-    # 检查是否有登录用户
-    current_user = session.get('username')
     
     # 检查用户名是否在白名单中
     if current_user in WHITELISTED_USERNAMES:
@@ -313,22 +393,43 @@ def register():
 
 @app.route('/register', methods=['POST'])
 def register_post():
+    # 添加详细日志
+    app.logger.info('接收到注册请求')
+    app.logger.info(f'请求方法: {request.method}')
+    app.logger.info(f'表单数据: {request.form}')
+    
+    # 获取表单数据
     username = request.form.get('username')
     email = request.form.get('email')
     password = request.form.get('password')
     confirm_password = request.form.get('confirm_password')
     
+    # 简单验证
+    if not username or not password or not email:
+        app.logger.warning('注册失败: 缺少必要字段')
+        flash('请填写所有必填字段', 'danger')
+        return redirect(url_for('register'))
+    
+    # 验证密码一致性
+    if password != confirm_password:
+        app.logger.warning('注册失败: 密码不一致')
+        flash('两次输入的密码不一致', 'danger')
+        return redirect(url_for('register'))
+    
+    # 验证密码长度
+    if len(password) < 6:
+        app.logger.warning('注册失败: 密码长度不足')
+        flash('密码长度至少为6位', 'danger')
+        return redirect(url_for('register'))
+    
+    # 获取用户数据
+    users = get_safe_users()
+    
     # 检查用户名是否已存在
     if username in users:
-        return render_template('register.html', error='用户名已存在')
-    
-    # 检查两次输入的密码是否一致
-    if password != confirm_password:
-        return render_template('register.html', error='两次输入的密码不一致')
-    
-    # 检查密码长度是否足够
-    if len(password) < 6:
-        return render_template('register.html', error='密码长度至少为6个字符')
+        app.logger.warning(f'注册失败: 用户名 {username} 已存在')
+        flash('该用户名已被注册', 'danger')
+        return redirect(url_for('register'))
     
     # 创建新用户
     users[username] = {
@@ -339,9 +440,11 @@ def register_post():
     }
     
     # 保存用户数据
-    save_users()
+    save_users(users)
+    app.logger.info(f'注册成功: 用户 {username} 已创建')
     
-    # 注册成功后重定向到登录页面
+    # 重定向到登录页面
+    flash('注册成功！请登录', 'success')
     return redirect(url_for('login'))
 
 @app.route('/login')
@@ -350,22 +453,60 @@ def login():
 
 @app.route('/login', methods=['POST'])
 def login_post():
-    username = request.form.get('username')
+    input_value = request.form.get('username')
     password = request.form.get('password')
+    remember = request.form.get('remember')
+    
+    # 验证密码是否为空
+    if not password:
+        flash('密码不能为空', 'danger')
+        return redirect(url_for('login'))
+    
+    # 验证密码长度
+    if len(password) < 6:
+        flash('密码长度至少为6个字符', 'danger')
+        return redirect(url_for('login'))
+    
+    # 获取用户数据
+    users = get_safe_users()
+    
+    # 查找对应的用户名
+    username = None
+    
+    # 首先检查是否直接是用户名
+    if input_value in users:
+        username = input_value
+    else:
+        # 检查是否是电子邮箱
+        for user, info in users.items():
+            if info.get('email') == input_value:
+                username = user
+                break
     
     # 检查用户是否存在
-    if username not in users:
-        return render_template('login.html', error='用户名不存在')
+    if not username:
+        flash('用户名或密码错误', 'danger')
+        return redirect(url_for('login'))
     
-    # 检查密码是否正确
-    if not verify_password(users[username]['password'], password):
-        return render_template('login.html', error='密码错误')
+    # 获取存储的哈希密码
+    stored_hash = users[username]['password']
     
-    # 创建会话
-    session['username'] = username
+    # 直接验证原始密码
+    if verify_password(stored_hash, password):
+        # 创建用户会话
+        session['username'] = username
+        session['is_admin'] = users[username]['is_admin']
+        
+        # 如果用户选择记住我，则设置较长的cookie过期时间
+        if remember:
+            session.permanent = True
+        
+        # 登录成功后重定向到首页
+        return redirect(url_for('home'))
     
-    # 登录成功后重定向到首页
-    return redirect(url_for('home'))
+    # 密码验证失败
+    flash('用户名或密码错误', 'danger')
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
@@ -401,6 +542,7 @@ def admin_required(func):
         
         # 检查用户是否为管理员
         username = session['username']
+        users = get_safe_users()
         if username not in users or not users[username].get('is_admin', False):
             return "权限不足，只有管理员可以访问此页面", 403
         
@@ -416,6 +558,7 @@ def config_admin_required(func):
             return redirect(url_for('login'))
         
         username = session['username']
+        users = get_safe_users()
         if username not in users or not users[username].get('is_admin', False):
             return "权限不足，只有管理员可以访问此页面", 403
         
@@ -533,6 +676,9 @@ def admin_config():
 @app.route('/admin')
 @admin_required
 def admin_panel():
+    # 获取用户数据
+    users = get_safe_users()
+    
     # 获取系统信息
     user_count = len(users)
     message_count = len(messages)
@@ -567,13 +713,16 @@ def admin_panel():
 def delete_user():
     username = request.form.get('username')
     
+    # 获取用户数据
+    users = get_safe_users()
+    
     # 不允许删除管理员账户
     if username == 'admin':
         return redirect(url_for('admin_panel', error='不允许删除管理员账户'))
     
     if username in users:
         del users[username]
-        save_users()
+        save_users(users)
         return redirect(url_for('admin_panel', success=f'用户 {username} 已成功删除'))
     
     return redirect(url_for('admin_panel', error='用户不存在'))

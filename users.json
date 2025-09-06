@@ -1,8 +1,14 @@
 {
-  "admin": {
-    "email": "admin@example.com",
-    "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
-    "created_at": "2025-08-31 00:24:19",
-    "is_admin": true
-  }
+    "admin": {
+        "email": "admin@example.com",
+        "password": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+        "created_at": "2025-09-06 14:19:20",
+        "is_admin": true
+    },
+    "huluobuo": {
+        "email": "hu_luo_buo@outlook.com",
+        "password": "c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646",
+        "created_at": "2025-09-06 16:48:23",
+        "is_admin": false
+    }
 }
